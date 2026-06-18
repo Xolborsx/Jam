@@ -1,49 +1,75 @@
-const jogador = document.getElementById("jogador");
-const moeda = document.getElementById("moeda");
+const espada = document.getElementById("espada");
+const bola = document.getElementById("bola");
 const pontosTexto = document.getElementById("pontos");
 
-let x = 0;
-let y = 0;
+let espadaY = 200;
+
+let bolaX = 700;
+let bolaY = 250;
+
+let velocidadeX = -5;
+let velocidadeY = 3;
+
 let pontos = 0;
 
 document.addEventListener("keydown", (e) => {
 
-    if (e.key === "d") x += 10;
-    if (e.key === "a") x -= 10;
-    if (e.key === "w") y -= 10;
-    if (e.key === "s") y += 10;
+    if (e.key === "w") {
+        espadaY -= 20;
+    }
 
-    // Bordas da arena
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
-    if (x > 560) x = 560;
-    if (y > 360) y = 360;
+    if (e.key === "s") {
+        espadaY += 20;
+    }
 
-    jogador.style.left = x + "px";
-    jogador.style.top = y + "px";
+    if (espadaY < 0) espadaY = 0;
+    if (espadaY > 400) espadaY = 400;
 
-    verificarColisao();
+    espada.style.top = espadaY + "px";
 });
 
-function verificarColisao() {
+function atualizar() {
 
-    const jogadorRect = jogador.getBoundingClientRect();
-    const moedaRect = moeda.getBoundingClientRect();
+    bolaX += velocidadeX;
+    bolaY += velocidadeY;
 
+    // teto e chão
+    if (bolaY <= 0 || bolaY >= 480) {
+        velocidadeY *= -1;
+    }
+
+    const espadaRect = espada.getBoundingClientRect();
+    const bolaRect = bola.getBoundingClientRect();
+
+    // colisão com a espada
     if (
-        jogadorRect.left < moedaRect.right &&
-        jogadorRect.right > moedaRect.left &&
-        jogadorRect.top < moedaRect.bottom &&
-        jogadorRect.bottom > moedaRect.top
+        bolaRect.left < espadaRect.right &&
+        bolaRect.right > espadaRect.left &&
+        bolaRect.top < espadaRect.bottom &&
+        bolaRect.bottom > espadaRect.top
     ) {
+
+        velocidadeX *= -1;
 
         pontos++;
         pontosTexto.textContent = pontos;
-
-        const novaX = Math.random() * 550;
-        const novaY = Math.random() * 350;
-
-        moeda.style.left = novaX + "px";
-        moeda.style.top = novaY + "px";
     }
+
+    // parede direita
+    if (bolaX >= 780) {
+        velocidadeX *= -1;
+    }
+
+    // perdeu
+    if (bolaX <= 0) {
+        alert("Game Over! Pontos: " + pontos);
+        location.reload();
+    }
+
+    bola.style.left = bolaX + "px";
+    bola.style.top = bolaY + "px";
+
+    requestAnimationFrame(atualizar);
 }
+
+atualizar();
